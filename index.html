@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=5cf79c24-3341-4aff-900c-f5957c2ca45f
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Order Tracking Dashboard · Demo</title>
+<meta name="description" content="Demo: live order, production and payment tracking dashboard with sample data.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231f4e8c%22%2F%3E%3Cpath%20d%3D%22M14%2044V26l18-10%2018%2010v18l-18%2010z%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M14%2026l18%2010%2018-10M32%2036v18%22%20fill%3D%22none%22%20stroke%3D%22%239cc3ff%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
+<style>
+
+:root{--bg:#f3f5f9;--sf:#fff;--sf2:#f7f9fc;--tx:#14213d;--mu:#667085;--bd:#e3e8ef;--ac:#1d4f91;--acs:#e8f0fb;--hd:#0f2b46;
+--ok:#12805c;--oks:#def5ea;--wn:#a15c00;--wns:#fdf0d5;--bad:#c0262d;--bads:#fde4e4;--nt:#475467;--nts:#eaecf0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1117;--sf:#161b22;--sf2:#1c222b;--tx:#e6eaf0;--mu:#8b97a7;--bd:#2a313b;--ac:#6ea8f0;--acs:#14253d;--hd:#0a1c2e;--ok:#4cd1a0;--oks:#10372b;--wn:#f0b84d;--wns:#3a2a0b;--bad:#ff8087;--bads:#42191c;--nt:#a6b0bd;--nts:#262d37}}
+:root[data-theme="dark"]{--bg:#0d1117;--sf:#161b22;--sf2:#1c222b;--tx:#e6eaf0;--mu:#8b97a7;--bd:#2a313b;--ac:#6ea8f0;--acs:#14253d;--hd:#0a1c2e;--ok:#4cd1a0;--oks:#10372b;--wn:#f0b84d;--wns:#3a2a0b;--bad:#ff8087;--bads:#42191c;--nt:#a6b0bd;--nts:#262d37}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.top{background:var(--hd);color:#fff;padding:16px 20px}
+.top .in{max-width:1400px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:38px;height:38px;border-radius:9px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:20px}
+.top h1{margin:0;font-size:19px;font-weight:600;letter-spacing:.2px}.top p{margin:2px 0 0;font-size:12px;opacity:.75}
+.src{display:flex;gap:10px;align-items:center;font-size:12px}
+.chip{background:rgba(255,255,255,.12);border-radius:99px;padding:5px 12px}
+.btn{font:inherit;font-weight:600;font-size:13px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+.top .btn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25);color:#fff;padding:6px 12px}
+.wrap{max-width:1400px;margin:0 auto;padding:16px 20px 40px}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.card h3{margin:0 0 10px;font-size:13px;font-weight:600;color:var(--tx);text-transform:uppercase;letter-spacing:.5px}
+#dsp{display:none;margin-bottom:14px}#dsp.on{display:block}
+.drow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.drow input[type=url]{flex:1;min-width:240px}
+label{display:block;font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+select,input{font:inherit;color:var(--tx);background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;width:100%}
+select:focus,input:focus{outline:2px solid var(--ac);outline-offset:-1px}
+.msg{font-size:12px;color:var(--mu)}.msg.ok{color:var(--ok)}.msg.er{color:var(--bad)}
+.flt{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.flt .q{grid-column:span 2}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.kpi{border-left:4px solid var(--ac)}.kpi.w{border-left-color:var(--wn)}.kpi.b{border-left-color:var(--bad)}.kpi.g{border-left-color:var(--ok)}
+.kpi span{display:block;font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.kpi b{display:block;font-size:24px;line-height:1.2;margin:3px 0 1px}.kpi small{color:var(--mu);font-size:12px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:14px}
+.br{display:grid;grid-template-columns:minmax(90px,130px) 1fr 64px;gap:8px;align-items:center;margin:7px 0;font-size:13px}
+.br .t{height:10px;background:var(--nts);border-radius:6px;overflow:hidden}.br .t i{display:block;height:100%;background:var(--ac);border-radius:6px}
+.br .v{text-align:right;font-weight:600}
+.stk{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--nts);margin:6px 0 12px}
+.stk i{display:block;height:100%}
+.lg{display:flex;justify-content:space-between;font-size:13px;margin:6px 0}.lg u{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;text-decoration:none}
+.th{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.th h3{margin:0}
+.sc{overflow:auto;max-height:560px;border:1px solid var(--bd);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:980px}
+th{position:sticky;top:0;background:var(--sf2);text-align:left;font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;padding:10px;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none}
+th.r,td.r{text-align:right}
+td{padding:9px 10px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody tr{cursor:pointer}tbody tr:hover{background:var(--acs)}
+tr.late{box-shadow:inset 3px 0 0 var(--bad)}tr.soon{box-shadow:inset 3px 0 0 var(--wn)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px}
+.late .pa,.p-late{background:var(--bads);color:var(--bad)}.p-soon{background:var(--wns);color:var(--wn)}.p-ok,.p-done{background:var(--oks);color:var(--ok)}.p-none,.p-st{background:var(--nts);color:var(--nt)}
+.tag{margin-left:6px;font-size:10px;font-weight:700;color:var(--ac);background:var(--acs);border-radius:4px;padding:1px 6px}
+.mini{width:70px;height:6px;background:var(--nts);border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle}.mini i{display:block;height:100%;background:var(--ok)}
+.more{text-align:center;margin-top:10px}
+.ov{position:fixed;inset:0;background:rgba(10,15,25,.5);display:none;z-index:20}.ov.on{display:block}
+.dr{position:fixed;top:0;right:0;bottom:0;width:min(640px,100%);background:var(--bg);z-index:21;transform:translateX(100%);transition:transform .2s;overflow:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:-8px 0 24px rgba(0,0,0,.25)}
+.dr.on{transform:none}
+.dh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}.dh h2{margin:0;font-size:20px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.kv div{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:8px 10px}.kv small{display:block;font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.4px}.kv b{font-size:13px}
+.stg{display:grid;grid-template-columns:120px 1fr 70px;gap:8px;align-items:center;margin:7px 0;font-size:13px}
+.stg .t{height:10px;background:var(--nts);border-radius:6px;overflow:hidden}.stg .t i{display:block;height:100%;background:var(--ac)}.stg .v{text-align:right;font-weight:600}
+.dr .card{margin-bottom:12px}.dr table{min-width:560px}
+.empty{text-align:center;color:var(--mu);padding:30px}
+@media(max-width:700px){.flt .q{grid-column:span 1}.wrap{padding:12px}.top{padding:14px 12px}}
+
+.tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--bd)}
+.tabs a{padding:10px 16px;font-weight:600;font-size:14px;color:var(--mu);text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs a.on{color:var(--ac);border-bottom-color:var(--ac)}
+.view{display:none}.view.on{display:block}
+.src-note{font-size:11px;color:var(--mu);margin-top:6px}
+.tag.n{color:var(--ok);background:var(--oks)}
+.pay td,.pay th{white-space:nowrap}.pay table{min-width:720px}
+.tot td{font-weight:700;background:var(--sf2);cursor:default}
+.lock{position:fixed;inset:0;background:var(--bg);z-index:30;display:grid;place-items:center;padding:20px}
+.lock.off{display:none}
+.lock .box{width:min(380px,100%);background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:26px;box-shadow:0 8px 30px rgba(16,24,40,.08)}
+.lock h2{margin:0 0 4px;font-size:19px}.lock p{margin:0 0 18px;color:var(--mu);font-size:13px}
+.lock .btn{width:100%;margin-top:12px;padding:10px}.lock .rm{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mu);margin-top:12px;text-transform:none;letter-spacing:0;font-weight:400}
+.lock .rm input{width:auto}
+td.rem{white-space:normal;min-width:180px;max-width:320px;color:var(--tx)}
+.chip.live{display:inline-flex;align-items:center;gap:7px;color:#fff;background:rgba(18,183,106,.18);border-color:rgba(18,183,106,.55);font-weight:600}
+.chip.live::before{content:"";width:8px;height:8px;border-radius:50%;background:#12b76a;box-shadow:0 0 0 0 rgba(18,183,106,.7);animation:livePulse 1.6s infinite}
+.chip.live span{animation:liveBlink 1.6s infinite}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(18,183,106,.7)}70%{box-shadow:0 0 0 8px rgba(18,183,106,0)}100%{box-shadow:0 0 0 0 rgba(18,183,106,0)}}
+@keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.chip.live::before,.chip.live span{animation:none}}
+.flow{display:flex;flex-direction:column;gap:0;position:relative}
+.fs{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:center;padding:7px 0;position:relative}
+.fs:not(:last-child)::after{content:"";position:absolute;left:14px;top:34px;bottom:-8px;width:2px;background:var(--bd)}
+.fs.done:not(:last-child)::after{background:var(--ok)}
+.fn{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--sf2);color:var(--mu);border:2px solid var(--bd);position:relative;z-index:1}
+.fs.done .fn{background:var(--ok);border-color:var(--ok);color:#fff}
+.fs.part .fn{background:var(--wns);border-color:var(--wn);color:var(--wn)}
+.fl{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:5px}.fl span{color:var(--mu);font-variant-numeric:tabular-nums}
+.fs .t{height:7px;background:var(--sf2);border-radius:4px;overflow:hidden}.fs .t i{display:block;height:100%;background:var(--ac);border-radius:4px}
+.fs.done .t i{background:var(--ok)}.fs.part .t i{background:var(--wn)}
+.yr{display:flex;align-items:center;gap:10px;margin-bottom:12px}.yr label{margin:0}.yr select{width:auto;min-width:110px}
+.buckets{margin:0}.bk{text-align:left;cursor:pointer;font:inherit;color:inherit}.bk.on{outline:2px solid var(--ac);outline-offset:-2px}
+.bk small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.ptabs{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}.pt{border:1px solid var(--bd);background:var(--sf);color:var(--tx);border-radius:999px;padding:5px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+.pt i{font-style:normal;color:var(--mu);margin-left:3px}.pt.on{background:var(--ac);border-color:var(--ac);color:#fff}.pt.on i{color:#fff;opacity:.8}
+.bdg{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;margin-left:4px;animation:liveBlink 1.6s infinite}
+.palert{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;background:var(--bads,#fef3f2);border:1px solid var(--bad);color:var(--tx);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:13.5px}
+.palert b{color:var(--bad)}.palert em{font-style:normal;font-weight:700}.palert a{margin-left:auto;color:var(--ac);font-weight:600}
+@media (prefers-reduced-motion:reduce){.bdg{animation:none}}
+.palert[hidden],.bdg[hidden],[hidden]{display:none!important}
+.blogo{width:44px;height:44px;background:#fff;border-radius:10px;padding:5px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.blogo img{width:100%;height:100%;object-fit:contain;display:block}
+.lockLogo{display:block;width:170px;height:auto;margin:0 auto 18px;background:#fff;border-radius:12px;padding:12px 16px;box-sizing:border-box;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.lock h2,.lock p{text-align:center}
+.demo-note{background:var(--acs,#eaf1fb);border:1px solid var(--bd);border-radius:10px;padding:9px 14px;margin:0 0 14px;font-size:13px;color:var(--tx)}
+#out{display:none}
+</style></head>
+<body>
+<div class="lock" id="lock"><form class="box" id="lf">
+ 
+ <h2>Order &amp; Payment Dashboard</h2><p>Enter the access password to view your order and payment status.</p>
+ <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required>
+ <label class="rm"><input type="checkbox" id="rem" checked> Keep me signed in on this device</label>
+ <button class="btn pri" id="go" type="submit">Open dashboard</button>
+ <div class="msg er" id="lmsg" style="margin-top:10px;min-height:18px"></div>
+</form></div>
+<div class="top"><div class="in">
+ <div class="brand"><div class="logo blogo"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231f4e8c%22%2F%3E%3Cpath%20d%3D%22M14%2044V26l18-10%2018%2010v18l-18%2010z%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M14%2026l18%2010%2018-10M32%2036v18%22%20fill%3D%22none%22%20stroke%3D%22%239cc3ff%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E" alt="Demo"></div><div><h1 id="ttl">Order &amp; Payment Dashboard</h1><p>Order, dispatch, shipment and payment status by UID</p></div></div>
+ <div class="src"><span class="chip" id="today"></span><span class="chip" id="srcl"></span><button class="btn" id="rf">Refresh</button><button class="btn" id="out">Sign out</button></div>
+</div></div>
+<div class="wrap">
+<div class="demo-note">Demo with <b>sample data</b> — all customers, orders, UIDs and invoices are fictional. Dates move with today's date.</div>
+<nav class="tabs"><a href="#orders" data-v="orders">Orders &amp; UID trace</a><a href="#payments" data-v="payments">Payments <span class="bdg" id="pbdg" hidden></span></a></nav>
+<div class="palert" id="palert" hidden></div>
+
+<div class="card" id="warn" style="display:none;border-color:var(--wn);background:var(--wns);margin-bottom:14px"></div>
+<section class="view" id="v-orders">
+<div class="flt">
+ <div><label>Work order</label><select id="fs"></select></div>
+ <div><label>Grade</label><select id="fg"></select></div>
+ <div><label>Shipment month</label><select id="fm"></select></div>
+ <div><label>Status</label><select id="fa"><option value="">All</option><option value="open">All open</option><option value="late">Delayed</option><option value="soon">Due ≤15 days</option><option value="ok">On schedule</option><option value="done">Completed</option></select></div>
+ <div><label>Customer article no.</label><input id="fart" list="arts" placeholder="All articles" autocomplete="off"><datalist id="arts"></datalist></div>
+ <div><label>Project order</label><select id="fp"><option value="">All</option><option value="Yes">Project (P…)</option><option value="No">Regular</option></select></div>
+ <div class="q"><label>Trace UID / WO / PO / Article</label><input id="fq" placeholder="Search…"></div>
+</div>
+<div class="kpis" id="kpis"></div>
+<div class="cols">
+ <div class="card"><h3>Outstanding by grade (top 8)</h3><div id="c1"></div></div>
+ <div class="card"><h3>Outstanding by shipment month</h3><div id="c2"></div></div>
+ <div class="card"><h3>Shipment risk (outstanding MT)</h3><div id="c3"></div></div>
+ <div class="card"><h3>Order MT by work order (top 8)</h3><div id="c4"></div></div>
+</div>
+<div class="card">
+ <div class="th"><h3>UID Trace <span class="msg" id="cnt"></span></h3><span class="msg">Click a row for full detail · click a header to sort</span></div>
+ <div class="sc"><table><thead id="thead"></thead><tbody id="tb"></tbody></table></div>
+ <div class="more"><button class="btn" id="more">Show more</button></div>
+</div>
+</section>
+
+<section class="view" id="v-payments">
+<div class="yr"><label for="py">Calendar year</label><select id="py"></select></div>
+<div class="kpis" id="pk"></div>
+<div class="card"><h3>Upcoming due invoices <span class="msg">(click a box to filter the list)</span></h3><div class="kpis buckets" id="pbk"></div></div>
+<div class="card pay">
+ <div class="th"><h3>Invoices <span class="msg" id="pcnt"></span></h3><span class="msg">Days are counted live from today against the contract due date</span></div>
+ <div class="ptabs" id="pf"></div>
+ <div class="sc"><table><thead><tr><th>Invoice no.</th><th>Invoice date</th><th>Due date</th><th class="r">Days</th><th>Status</th><th>Paid on</th></tr></thead><tbody id="pb"></tbody></table></div>
+</div>
+</section>
+<div class="src-note" id="note"></div>
+</div>
+<div class="ov" id="ov"></div><aside class="dr" id="dr"></aside>
+<script>
+/* =====================================================================
+   DATA SERVICE — paste your Google Apps Script web app URL (ends in /exec)
+   ===================================================================== */
+const API_URL="";
+const REFRESH_MINUTES=5;
+/* ===================================================================== */
+const SEED={cust:"",plines:[],arows:[],pay:[],asof:""};
+let D=SEED,LINES=[];
+const nu=u=>/^PE\d{5}$/.test(u)?"P0"+u.slice(2):u;
+function merge(S){const A=new Map(S.arows.map(a=>[nu(a.uid),a])),out=[],have=new Set();
+ for(const p of S.plines){const a=A.get(p.uid);out.push({...p,so:a?a.so:"",exin:a?a.exin:"",art:a?a.art:"",sost:a?a.sost:"",src:"P"});have.add(p.uid)}
+ for(const[u,a]of A){if(have.has(u))continue;const m=/([A-Z]{2})-(\d{4})-0*(\d+)$/.exec(a.so);
+  const wo=m?(/^POA/.test(a.so)?"PE":m[1])+m[2]+"-"+String(+m[3]).padStart(4,"0"):a.so;
+  const shape=a.shape=="Round Bar"?"Round":a.shape;
+  out.push({cust:"DSS",cont:"Europe",wo,ship:a.exin,uid:u,grade:a.grade,fsize:shape=="Round"?a.size+" Dia":a.size.replace(/ X /g," x "),shape,order:a.order,inw:0,ins:0,cast:0,roll:0,ht:0,pack:0,disp:Math.round(Math.max(0,a.order-a.outw)*1000)/1000,po:a.po,tol:a.tol,htc:a.htc,exec:a.exec,dterm:"",so:a.so,exin:a.exin,art:a.art,sost:a.sost,src:"A"})}
+ return out}
+const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const f2=x=>x.toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2}),f1=x=>x.toLocaleString("en-GB",{minimumFractionDigits:1,maximumFractionDigits:1});
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const TODAY=(()=>{const d=new Date();d.setHours(0,0,0,0);return d})();
+const fd=s=>{if(!/^\d{4}-\d\d-\d\d$/.test(s||""))return s||"—";const[y,m,d]=s.split("-");return d+" "+MON[+m-1]+" "+y};
+function daysTo(s){if(!/^\d{4}-\d\d-\d\d$/.test(s||""))return null;const[y,m,d]=s.split("-").map(Number);return Math.round((new Date(y,m-1,d)-TODAY)/864e5)}
+let UIDS=[],sortK="out",sortD=-1,shown=100;
+const COLS=[["uid","UID"],["wo","WO No."],["po","Cust PO"],["art","Article no."],["grade","Grade"],["fsize","Size"],["order","Order MT",1],["disp","Dispatched MT",1],["out","Outstanding MT",1],["pct","Progress"],["ship","Shipment"],["days","Status"],["stage","Stage"],["rem","Remarks"]];
+function build(){const M=new Map();
+ for(const l of LINES){let u=M.get(l.uid);
+  if(!u){u={...l,wos:new Set(),sos:new Set(),order:0,inw:0,ins:0,cast:0,roll:0,ht:0,pack:0,disp:0,lines:[]};M.set(l.uid,u)}
+  u.wos.add(l.wo);if(l.so)u.sos.add(l.so);["order","cast","roll","ht","inw","ins","pack","disp"].forEach(k=>u[k]+=l[k]);
+  if(l.ship&&(!u.ship||l.ship<u.ship))u.ship=l.ship;if(l.rem){u.rems=u.rems||new Set();u.rems.add(l.rem)}u.lines.push(l)}
+ UIDS=[...M.values()];
+ for(const u of UIDS){u.wo=[...u.wos].join(", ");u.rem=u.rems?[...u.rems].join(" · "):"";u.so=[...u.sos].join(", ");u.out=Math.max(0,u.order-u.disp);u.pct=u.order?Math.min(100,u.disp/u.order*100):0;u.proj=/^P/i.test(u.uid);
+  u.days=daysTo(u.ship);u.al=u.out<0.0005?"done":u.days==null?"none":u.days<0?"late":u.days<=15?"soon":"ok";
+  
+  u.stage=u.out<0.0005?"Dispatched":u.disp>0?"Partly dispatched":u.pack>0?"Packed":u.ins>0?"Inspected":u.inw>0?"Inward":u.ht>0?"Heat treated":u.roll>0?"Rolled":u.cast>0?"Cast":u.src=="A"?"Order confirmed":"Planned"}
+ const U=f=>[...new Set(UIDS.map(f).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true}));
+ $("arts").innerHTML=U(u=>u.art).map(v=>`<option value="${esc(v)}">`).join("");opt("fs","All work orders",U(u=>u.wo));opt("fg","All grades",U(u=>u.grade));
+ opt("fm","All months",U(u=>u.ship.slice(0,7)),v=>MON[+v.slice(5)-1]+" "+v.slice(0,4));render()}
+function opt(id,all,vals,fmt){$(id).innerHTML=`<option value="">${all}</option>`+vals.map(v=>`<option value="${esc(v)}">${esc(fmt?fmt(v):v)}</option>`).join("")}
+function rows(){const art=$("fart").value.trim().toLowerCase(),so=$("fs").value,g=$("fg").value,m=$("fm").value,a=$("fa").value,p=$("fp").value,q=$("fq").value.toLowerCase();
+ return UIDS.filter(u=>(!art||String(u.art||"").toLowerCase().includes(art))&&(!so||u.wos.has(so))&&(!g||u.grade==g)&&(!m||u.ship.slice(0,7)==m)&&(!a||(a=="open"?u.al!="done":u.al==a))&&(!p||(p=="Yes")==u.proj)&&(!q||(u.uid+" "+u.wo+" "+u.so+" "+u.po+" "+u.art).toLowerCase().includes(q)))}
+function bars(el,map,fmt=f1,ord){const e=Object.entries(map).sort(ord||((a,b)=>b[1]-a[1])).slice(0,ord?24:8),mx=Math.max(.001,...e.map(x=>x[1]));
+ $(el).innerHTML=e.map(([k,v])=>`<div class="br"><span>${esc(k.split("|")[0])}</span><div class="t"><i style="width:${v/mx*100}%"></i></div><span class="v">${fmt(v)}</span></div>`).join("")||'<div class="msg">No open quantity</div>'}
+function alertPill(u){return{late:`<span class="pill p-late">Delayed · ${-u.days} d</span>`,soon:`<span class="pill p-soon">Due in ${u.days} d</span>`,ok:'<span class="pill p-ok">On schedule</span>',done:'<span class="pill p-done">Completed</span>',none:"—"}[u.al]}
+function render(){const R=rows(),sum=(A,k)=>A.reduce((a,u)=>a+u[k],0);
+ const ord=sum(R,"order"),dsp=sum(R,"disp"),out=sum(R,"out"),late=R.filter(u=>u.al=="late"),soon=R.filter(u=>u.al=="soon");
+ const lq=sum(late,"out"),sq=sum(soon,"out"),okq=Math.max(0,out-lq-sq);
+ const kp=[["UIDs",R.length.toLocaleString(),R.filter(u=>u.al!="done").length+" open",""],["Work orders",new Set(R.flatMap(u=>[...u.wos])).size,"",""],
+ ["Order MT",f1(ord),"","g"],["Dispatched MT",f1(dsp),ord?Math.round(dsp/ord*100)+"% of order":"","g"],["Outstanding MT",f1(out),ord?Math.round(out/ord*100)+"% of order":"","w"],
+ ["Project UIDs",R.filter(u=>u.proj).length,"",""],["Shipment alerts",late.length+soon.length,late.length+" delayed · "+soon.length+" due ≤15 d","b"]];
+ $("kpis").innerHTML=kp.map(([l,v,s,c])=>`<div class="card kpi ${c}"><span>${l}</span><b>${v}</b><small>${s||"&nbsp;"}</small></div>`).join("");
+ const O=R.filter(u=>u.out>=.0005),m1={},m2={},m4={};
+ O.forEach(u=>{m1[u.grade||"—"]=(m1[u.grade||"—"]||0)+u.out;if(u.ship){const k=MON[+u.ship.slice(5,7)-1]+" "+u.ship.slice(2,4)+"|"+u.ship.slice(0,7);m2[k]=(m2[k]||0)+u.out}});
+ R.forEach(u=>{const k=u.wo;m4[k]=(m4[k]||0)+u.order});
+ bars("c1",m1);bars("c2",m2,f1,(a,b)=>a[0].split("|")[1].localeCompare(b[0].split("|")[1]));bars("c4",m4);
+ const tot=Math.max(out,.001);
+ $("c3").innerHTML=`<div class="stk"><i style="width:${lq/tot*100}%;background:var(--bad)"></i><i style="width:${sq/tot*100}%;background:var(--wn)"></i><i style="width:${okq/tot*100}%;background:var(--ok)"></i></div>
+ <div class="lg"><span><u style="background:var(--bad)"></u>Delayed (${late.length} UIDs)</span><b>${f1(lq)}</b></div>
+ <div class="lg"><span><u style="background:var(--wn)"></u>Due within 15 days (${soon.length})</span><b>${f1(sq)}</b></div>
+ <div class="lg"><span><u style="background:var(--ok)"></u>On schedule / no date</span><b>${f1(okq)}</b></div>`;
+ R.sort((a,b)=>{let x=a[sortK],y=b[sortK];if(x==null)x=1e9;if(y==null)y=1e9;return(typeof x=="number"?x-y:String(x).localeCompare(String(y),undefined,{numeric:true}))*sortD});
+ $("thead").innerHTML="<tr>"+COLS.map(([k,l,r])=>`<th class="${r?'r':''}" data-k="${k}">${l}${sortK==k?(sortD>0?" ▲":" ▼"):""}</th>`).join("")+"</tr>";
+ $("cnt").textContent="— "+R.length+" UIDs";
+ $("tb").innerHTML=R.slice(0,shown).map(u=>`<tr class="${u.al=="late"||u.al=="soon"?u.al:""}" data-u="${esc(u.uid)}"><td><b>${esc(u.uid)}</b>${u.proj?'<span class="tag">PROJECT</span>':""}</td><td>${esc(u.wo)}</td><td>${esc(u.po)||"—"}</td><td>${esc(u.art)||"—"}</td><td>${esc(u.grade)}</td><td>${esc(u.fsize)}</td><td class="r">${f2(u.order)}</td><td class="r">${f2(u.disp)}</td><td class="r"><b>${f2(u.out)}</b></td><td><span class="mini"><i style="width:${u.pct}%"></i></span> ${Math.round(u.pct)}%</td><td>${fd(u.ship)}</td><td>${alertPill(u)}</td><td><span class="pill p-st">${u.stage}</span></td><td class="rem" title="${esc(u.rem)}">${esc(u.rem)||"—"}</td></tr>`).join("")||`<tr><td colspan="14" class="empty">No UIDs match the selected filters.</td></tr>`;
+ $("more").style.display=R.length>shown?"inline-block":"none";$("more").textContent=`Show more (${R.length-shown} remaining)`}
+let cur=null;function detail(uid){cur=uid;const u=UIDS.find(x=>x.uid==uid);if(!u)return;
+ const kv=[["WO No.",u.wo],["Customer PO",u.po],["Article no.",u.art],["Grade",u.grade],["Product",u.shape],["Size",u.fsize],["Tolerance",u.tol],["HT condition",u.htc],["Execution",u.exec],["Delivery term",u.dterm],["Shipment",fd(u.ship)],["Ex-India date",u.exin?fd(u.exin):""],["Status",u.al==="late"?`${-u.days} days delayed`:u.al==="soon"?`Due in ${u.days} days`:u.al==="ok"?`On schedule · ${u.days} days remaining`:u.al==="done"?"Completed":"—"],["Project",u.proj?"Yes":"No"],["Stage",u.stage],["Remarks",u.rem]];
+ const st=[["Cast",u.cast],["Rolling",u.roll],["Heat treatment",u.ht],["Inward",u.inw],["Inspection",u.ins],["Packing",u.pack],["Dispatch",u.disp]];for(let i=st.length-2;i>=0;i--)st[i][1]=Math.max(st[i][1],st[i+1][1]);
+ $("dr").innerHTML=`<div class="dh"><div><h2>${esc(u.uid)} ${u.proj?'<span class="tag">PROJECT</span>':""}</h2><div>${alertPill(u)}</div></div><button class="btn" id="x">Close</button></div>
+ <div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="card kpi"><span>Order MT</span><b>${f2(u.order)}</b></div><div class="card kpi g"><span>Dispatched MT</span><b>${f2(u.disp)}</b></div><div class="card kpi w"><span>Outstanding MT</span><b>${f2(u.out)}</b></div></div>
+ <div class="card"><h3>UID details</h3><div class="kv">${kv.map(([a,b])=>`<div><small>${a}</small><b>${esc(b)||"—"}</b></div>`).join("")}</div></div>
+ ${u.src=="P"?`<div class="card"><h3>Production flow (MT vs order ${f2(u.order)})</h3><div class="flow">${st.map(([l,v],i)=>{const p=u.order?Math.min(100,v/u.order*100):0,cls=p>=99.5?"done":v>0?"part":"todo";return `<div class="fs ${cls}"><div class="fn">${cls=="done"?"✓":i+1}</div><div class="fb"><div class="fl"><b>${l}</b><span>${f2(v)} MT · ${Math.round(p)}%</span></div><div class="t"><i style="width:${p}%"></i></div></div></div>`}).join("")}</div></div>`:`<div class="card"><h3>Production flow</h3><div class="msg">Production stage data for this UID is not in the PMST DSS tab yet.</div></div>`}
+ <div class="card"><h3>Line items (${u.lines.length})</h3><div class="sc"><table><thead><tr><th>WO No.</th><th>Cust PO</th><th class="r">Order</th><th class="r">Dispatch</th><th class="r">Outstanding</th><th>Shipment</th></tr></thead><tbody>${u.lines.map(l=>`<tr style="cursor:default"><td>${esc(l.wo)}</td><td>${esc(l.po)||"—"}</td><td class="r">${f2(l.order)}</td><td class="r">${f2(l.disp)}</td><td class="r">${f2(Math.max(0,l.order-l.disp))}</td><td>${fd(l.ship)}</td></tr>`).join("")}</tbody></table></div></div>`;
+ $("dr").classList.add("on");$("ov").classList.add("on");$("x").onclick=closeD}
+function closeD(){$("dr").classList.remove("on");$("ov").classList.remove("on")}
+// ---- payments ----
+let PF="open",PY=null;
+function payments(){
+ const P=D.pay.map(p=>({...p,d:daysTo(p.due)})).sort((a,b)=>(a.due||"").localeCompare(b.due||"")||a.inv.localeCompare(b.inv));
+ const yrs=[...new Set(P.flatMap(p=>[p.idate,p.pd,p.due].filter(x=>/^\d{4}/.test(x||"")).map(x=>x.slice(0,4))).concat([String(TODAY.getFullYear())]))].sort().reverse();
+ if(!PY||!yrs.includes(PY))PY=String(TODAY.getFullYear());
+ $("py").innerHTML=yrs.map(y=>`<option${y==PY?" selected":""}>${y}</option>`).join("");
+ const open=P.filter(p=>!p.paid),od=open.filter(p=>p.d!=null&&p.d<0),w=n=>open.filter(p=>p.d!=null&&p.d>=0&&p.d<=n);
+ const raised=P.filter(p=>(p.idate||"").startsWith(PY)),paidY=P.filter(p=>p.paid&&((p.pd||p.due||"").startsWith(PY)));
+ const n=x=>x.length,inv=c=>c+" invoice"+(c==1?"":"s");
+ $("pk").innerHTML=[["Invoices raised in "+PY,n(raised),"by invoice date",""],["Paid in "+PY,n(paidY),"by payment date","g"],["Open (unpaid)",n(open),"all years","w"],["Overdue",n(od),od.length?"needs follow-up":"none",od.length?"b":"g"]]
+  .map(([l,v,sm,c])=>`<div class="card kpi ${c}"><span>${l}</span><b>${v}</b><small>${sm}</small></div>`).join("");
+ const BK=[["d5","Due in next 5 days",w(5),"b"],["d10","Due in next 10 days",w(10),"w"],["d20","Due in next 20 days",w(20),""],["d30","Due in next 30 days",w(30),""]];
+ $("pbk").innerHTML=BK.map(([k,l,a,c])=>`<button class="card kpi bk ${c} ${PF==k?"on":""}" data-f="${k}"><span>${l}</span><b>${a.length}</b><small>${a.length?a.slice(0,3).map(p=>esc(p.inv)).join(", ")+(a.length>3?" …":""):"none"}</small></button>`).join("");
+ const F={open:["Open",open],od:["Overdue",od],d5:["≤ 5 days",w(5)],d10:["≤ 10 days",w(10)],d20:["≤ 20 days",w(20)],d30:["≤ 30 days",w(30)],paid:["Paid in "+PY,paidY],all:["All",P]};
+ if(!F[PF])PF="open";
+ $("pf").innerHTML=Object.entries(F).map(([k,[l,a]])=>`<button class="pt ${PF==k?"on":""}" data-f="${k}">${l} <i>${a.length}</i></button>`).join("");
+ const R=F[PF][1];
+ const pill=p=>p.paid?`<span class="pill p-done">Paid</span>`:p.d==null?"—":p.d<0?`<span class="pill p-late">Overdue · ${-p.d} d</span>`:p.d<=5?`<span class="pill p-late">Due in ${p.d} d</span>`:p.d<=10?`<span class="pill p-soon">Due in ${p.d} d</span>`:p.d<=30?`<span class="pill p-soon">Due in ${p.d} d</span>`:`<span class="pill p-ok">Not yet due</span>`;
+ $("pcnt").textContent="— "+inv(R.length);
+ $("pb").innerHTML=R.map(p=>`<tr class="${p.paid?"":p.d<0||p.d<=5?"late":p.d<=10?"soon":""}" style="cursor:default"><td><b>${esc(p.inv)}</b></td><td>${fd(p.idate)}</td><td>${fd(p.due)}</td><td class="r">${p.paid?"—":p.d==null?"—":p.d<0?-p.d+" overdue":p.d+" to go"}</td><td>${pill(p)}</td><td>${p.pd?fd(p.pd):"—"}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No invoices in this view.</td></tr>`;
+ // alert: invoices due within 5 days (and overdue)
+ const a5=w(5),al=$("palert"),bd=$("pbdg"),cnt=a5.length+od.length;
+ bd.hidden=!cnt;bd.textContent=cnt;
+ if(cnt){al.hidden=false;al.innerHTML=`<b>⚠ Payment alert</b>`+(a5.length?`<span>${inv(a5.length)} due within 5 days: ${a5.map(p=>`<em>${esc(p.inv)}</em> (${fd(p.due)}, ${p.d==0?"today":"in "+p.d+" d"})`).join(", ")}</span>`:"")+(od.length?`<span>${inv(od.length)} overdue: ${od.map(p=>`<em>${esc(p.inv)}</em>`).join(", ")}</span>`:"")+`<a href="#payments">View</a>`}else{al.hidden=true;al.innerHTML=""}
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(b&&(b.closest("#pf")||b.closest("#pbk"))){PF=b.dataset.f;payments()}});
+document.addEventListener("change",e=>{if(e.target.id=="py"){PY=e.target.value;payments()}});
+// ---- tabs (hash routing) ----
+function route(){const v=location.hash=="#payments"?"payments":"orders";document.querySelectorAll(".view").forEach(e=>e.classList.toggle("on",e.id=="v-"+v));document.querySelectorAll(".tabs a").forEach(a=>a.classList.toggle("on",a.dataset.v==v))}
+window.addEventListener("hashchange",route);
+$("ov").onclick=closeD;document.addEventListener("keydown",e=>{if(e.key=="Escape")closeD()});
+$("tb").onclick=e=>{const r=e.target.closest("tr[data-u]");if(r)detail(r.dataset.u)};
+$("thead").onclick=e=>{const t=e.target.closest("th");if(!t)return;const k=t.dataset.k;if(sortK==k)sortD*=-1;else{sortK=k;sortD=["uid","wo","po","art","rem","ship","days","grade","fsize","stage"].includes(k)?1:-1}render()};
+$("more").onclick=()=>{shown+=200;render()};
+["fs","fg","fm","fa","fp","fq","fart"].forEach(i=>$(i).oninput=()=>{shown=100;render()});
+
+$("today").textContent="Today: "+fd(TODAY.getFullYear()+"-"+String(TODAY.getMonth()+1).padStart(2,"0")+"-"+String(TODAY.getDate()).padStart(2,"0"));
+function apply(S,live){D=S;LINES=merge(S);$("ttl").textContent=(S.cust||"DSS")+" · Order & Payment Dashboard";$("srcl").innerHTML="<span>"+esc(S.asof||"")+"</span>";$("srcl").classList.toggle("live",!!live);
+ $("note").textContent="Delay and payment-due days are calculated live from today's date. "+(S.asof||"")+(S.updated?" · Loaded "+new Date(S.updated).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"}):"")+(live?" · refreshes automatically every "+REFRESH_MINUTES+" min":"");
+ const o=$("fs").value,g=$("fg").value,m=$("fm").value;build();if(o)$("fs").value=o;if(g)$("fg").value=g;if(m)$("fm").value=m;render();payments();if($("dr").classList.contains("on")&&cur)detail(cur)}
+apply(SEED,false);route();
+
+// ---- central data (published Google Sheets CSV) ----
+function parseCSV(t){const R=[];let r=[],f="",q=false;t=t.replace(/^﻿/,"");
+ for(let i=0;i<t.length;i++){const c=t[i];
+  if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
+  else if(c=='"')q=true;else if(c==","){r.push(f);f=""}else if(c=="\n"||c=="\r"){if(c=="\r"&&t[i+1]=="\n")i++;r.push(f);f="";if(r.some(x=>x!==""))R.push(r);r=[]}else f+=c}
+ r.push(f);if(r.some(x=>x!==""))R.push(r);return R}
+const ck=k=>String(k??"").trim().toLowerCase().replace(/[._()\-\/]+/g," ").replace(/\s+/g," ").trim();
+function nd(v){const s=String(v??"").trim();if(!s)return"";let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return m[1]+"-"+m[2].padStart(2,"0")+"-"+m[3].padStart(2,"0");
+ m=s.match(/^(\d{1,2})[-\/ ]([A-Za-z]{3})[A-Za-z]*[-\/ ,]+(\d{2,4})$/);if(m){const mo=MON.map(x=>x.toLowerCase()).indexOf(m[2].toLowerCase())+1;let y=+m[3];if(y<100)y+=2000;if(mo)return y+"-"+String(mo).padStart(2,"0")+"-"+m[1].padStart(2,"0")}
+ m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/);if(m){let y=+m[3],d=+m[1],mo=+m[2];if(y<100)y+=2000;if(mo>12&&d<=12){const x=d;d=mo;mo=x}return y+"-"+String(mo).padStart(2,"0")+"-"+String(d).padStart(2,"0")}return s}
+const num=v=>{const x=parseFloat(String(v??"").replace(/[,\s€]/g,""));return isNaN(x)?0:x},str=v=>String(v??"").trim();
+function table(raw,need){for(let i=0;i<Math.min(raw.length,30);i++){const h=raw[i].map(ck);if(need.every(n=>h.some(x=>x==ck(n))))return{h,rows:raw.slice(i+1)}}return null}
+const col=(h,...names)=>{for(const n of names){const i=h.indexOf(ck(n));if(i>=0)return i}for(const n of names){const i=h.findIndex(x=>x.startsWith(ck(n)));if(i>=0)return i}return -1};
+const PM={cust:["Customer","Customer Code"],cont:["Continent","Region"],wo:["WO No.","WO No","Work Order"],ship:["Shipment Dt.","Shipment Date","Shipment"],uid:["Uid","UID"],grade:["Grade"],fsize:["F Size"],shape:["F Shape","Product","Shape"],order:["Order Wt.","Order MT","Order Wt"],inw:["Inward Wt."],ins:["Ins Wt.","Inspection Wt","Ins Wt"],cast:["Cast Wt"],roll:["Roll Wt"],ht:["Ht Wt"],pack:["Packed Wt in warehouse + U2+U4","Packed Wt"],rem:["Remarks","Remark"],disp:["Dispatch wt","Dispatch MT","Dispatch Wt"],po:["Cust Ord No","Cust Ord No.","Customer PO"],tol:["Size Toll.","Size Tolerance"],htc:["HT Condition"],exec:["Exceution","Execution"],dterm:["DTerm"]};
+function parseRaw(raw,got){let t;
+ if((t=table(raw,["Export Inv. No."]))){const h=t.h,I={inv:col(h,"Export Inv. No."),idate:col(h,"Invoice Date"),due:col(h,"Due Date as per Contract","Due Date"),st:col(h,"Payment Status","Status"),pd:col(h,"Payment Date","Paid Date","Payment Received Date"),cust:col(h,"Customer Full Name")};
+  const g=(r,k)=>I[k]<0?"":r[I[k]];
+  got.pay=t.rows.filter(r=>str(g(r,"inv"))).map(r=>{const st=str(g(r,"st")),pd=nd(g(r,"pd"));return{inv:str(g(r,"inv")),idate:nd(g(r,"idate")),due:nd(g(r,"due")),st,pd,paid:/paid|received|clear|settled|done/i.test(st)||(!!pd&&!/due|open|pending|unpaid/i.test(st))}});
+  const c=t.rows.map(r=>str(g(r,"cust"))).find(Boolean);if(c)got.cust=c;return"payments"}
+ if((t=table(raw,["Sales Order","Uid","S.O. Quantity"]))){const h=t.h,I={uid:col(h,"Uid"),so:col(h,"Sales Order"),exin:col(h,"Ex-India Date"),po:col(h,"Customer PO Number"),shape:col(h,"Shape Description"),exec:col(h,"Execution"),grade:col(h,"Grade Description"),tol:col(h,"Tolerance"),size:col(h,"FG Size","Customer Size"),htc:col(h,"HT Description"),order:col(h,"S.O. Quantity"),outw:col(h,"Outstanding Wt"),sost:col(h,"SO Line Status"),art:col(h,"Customer Article Number")};
+  const g=(r,k)=>I[k]<0?"":r[I[k]];
+  got.arows=t.rows.filter(r=>str(g(r,"uid"))).map(r=>({uid:str(g(r,"uid")),so:str(g(r,"so")),exin:nd(g(r,"exin")),po:str(g(r,"po")),shape:str(g(r,"shape")),exec:str(g(r,"exec")),grade:str(g(r,"grade")),tol:str(g(r,"tol")),size:str(g(r,"size")),htc:str(g(r,"htc")),order:num(g(r,"order")),outw:num(g(r,"outw")),sost:str(g(r,"sost")),art:str(g(r,"art"))}));return"orders"}
+ if((t=table(raw,["Uid","Customer"]))&&col(t.h,"Order Wt.","Order MT","Order Wt")>=0){const I={};for(const k in PM)I[k]=col(t.h,...PM[k]);const g=(r,k)=>I[k]<0?"":r[I[k]];
+  got.plines=t.rows.filter(r=>/DSS/i.test(str(g(r,"cust")))&&str(g(r,"uid"))).map(r=>{const o={};for(const k in PM)o[k]=["order","cast","roll","ht","inw","ins","pack","disp"].includes(k)?num(g(r,k)):k=="ship"?nd(g(r,k)):str(g(r,k));o.po=o.po.replace(/,$/,"");return o});return"pmst"}
+ return null}
+let busy=false,KEY="";
+const store={get(){try{return localStorage.getItem("dssKey")||sessionStorage.getItem("dssKey")||""}catch(e){return""}},
+ set(k,rem){try{(rem?localStorage:sessionStorage).setItem("dssKey",k)}catch(e){}},clear(){try{localStorage.removeItem("dssKey");sessionStorage.removeItem("dssKey")}catch(e){}}};
+async function fetchData(key){const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({key}),cache:"no-store",redirect:"follow"});
+ if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}
+function lockMsg(t){$("lmsg").textContent=t||""}
+function showLock(t){$("lock").classList.remove("off");document.querySelector(".wrap").style.visibility="hidden";lockMsg(t);setTimeout(()=>$("pw").focus(),50)}
+async function load(first){if(!KEY||busy)return;busy=true;$("rf").textContent="Refreshing…";if(first){$("go").disabled=true;$("go").textContent="Checking…"}
+ try{const j=await fetchData(KEY);
+  if(!j.ok){if(j.error=="unauthorized"||j.error=="locked"){KEY="";store.clear();showLock(j.error=="locked"?"Too many attempts. Please try again in 15 minutes.":"Incorrect password.")}else throw new Error(j.error||"service error");return}
+  const got={};for(const k in j.tabs)parseRaw(j.tabs[k],got);
+  const S={cust:got.cust||"Sample Customer GmbH",plines:got.plines||[],arows:got.arows||[],pay:got.pay||[],asof:"Live data",updated:j.loaded||new Date().toISOString()};
+  $("lock").classList.add("off");document.querySelector(".wrap").style.visibility="";$("warn").style.display="none";apply(S,true)}
+ catch(e){if(first)showLock("Could not reach the data service. Please try again.");else{$("warn").style.display="block";$("warn").textContent="Could not refresh the data just now ("+e.message+"). Showing the last loaded data."}}
+ finally{busy=false;$("rf").textContent="Refresh";$("go").disabled=false;$("go").textContent="Open dashboard"}}
+$("lf").onsubmit=e=>{e.preventDefault();KEY=$("pw").value;if(!KEY)return;store.set(KEY,$("rem").checked);$("pw").value="";load(true)};
+$("rf").onclick=()=>load(false);
+$("out").onclick=()=>{KEY="";store.clear();apply(SEED,false);showLock("")};
+setInterval(()=>load(false),REFRESH_MINUTES*6e4);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&KEY)load(false)});
+
+// ---- DEMO MODE: generated sample data, no password, no data service ----
+function genDemo(){
+ let seed=20260614;const rnd=()=>((seed=(seed*1103515245+12345)%2147483648)/2147483648);
+ const pick=a=>a[Math.floor(rnd()*a.length)],day=n=>{const d=new Date(TODAY);d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+ const grades=["1.4301","1.4307","1.4404","1.4571","1.4021","1.4104","1.4305"],tols=["h9","h11","k12"],execs=["Bright Drawn","Centerless Ground","Hot Rolled Turned","Peeled & Polished"];
+ const WOS=[["FR2627-0101",-48,14],["FR2627-0108",-21,16],["FR2627-0115",-6,12],["FR2627-0122",9,18],["FR2627-0130",24,15],["FR2627-0137",52,14],["PE2627-0011",-12,6],["PE2627-0014",33,7]];
+ const plines=[],arows=[],rem=["Balance in heat treatment","Awaiting inspection slot","Short closed on request","Ready for container stuffing","Priority — customer requested early dispatch"];
+ let uidN=31200,art=48100;
+ WOS.forEach(([wo,off,n],wi)=>{const proj=wo.startsWith("PE"),po="PO-DEMO-"+(4100+wi*7);
+  for(let i=0;i<n;i++){const id=(proj?"P0":"E")+(proj?String(400+wi*20+i).padStart(5,"0"):String(uidN++));
+   const flat=rnd()<.2,size=flat?pick([20,25,30,40,50,60])+" x "+pick([5,8,10,15,20]):pick([8,10,12,16,20,25,30,40,50,60,70,80,90,100])+" Dia";
+   const order=Math.round((0.5+rnd()*(proj?24:16))*2)/2;
+   const age=off<-30?1.05:off<-10?.97:off<0?.88:off<15?.62:off<30?.4:.15;
+   const pr=Math.min(1,Math.max(0,age+(rnd()-.5)*.28))*7;
+   const st=[0,1,2,3,4,5,6].map(k=>Math.min(1,Math.max(0,pr-k)));
+   const v=st.map(x=>Math.round(order*x*1000)/1000),grade=pick(grades),ship=day(off+Math.round((rnd()-.5)*4));
+   plines.push({cust:"DEMO",cont:"Europe",wo,ship,uid:id,grade,fsize:size,shape:flat?"Flat Bar":"Round",order,cast:v[0],roll:v[1],ht:v[2],inw:v[3],ins:v[4],pack:v[5],disp:v[6],po,tol:pick(tols),htc:pick(["Solution Annealed","Annealed","QT-800",""]),exec:pick(execs),dterm:"CIF",rem:rnd()<.12?pick(rem):""});
+   if(rnd()<.9)arows.push({uid:id,so:(proj?"POA-MN-FR-2627-00":"OA-MN-FR-2627-00")+wo.slice(-3),exin:day(off+10),po,shape:flat?"Flat Bar":"Round Bar",exec:"",grade,tol:"",size:size.replace(" Dia",""),htc:"",order,outw:Math.max(0,order-v[6]),sost:"Open Order",art:String(art++)});
+  }});
+ const pay=[];let inv=880;
+ [[-150,-100,1],[-130,-85,1],[-110,-70,1],[-95,-52,1],[-80,-40,1],[-60,-24,1],[-6,0,0],[2,0,0],[4,0,0],[8,0,0],[15,0,0],[22,0,0],[28,0,0],[46,0,0],[61,0,0]].forEach(([due,paidOff,p])=>{
+  pay.push({inv:"EXP/DEMO/2627/"+(inv++),idate:day(due-60),due:day(due),st:p?"Paid":"",pd:p?day(paidOff):"",paid:!!p})});
+ return{cust:"Sample Customer GmbH",plines,arows,pay,asof:"Live demo",updated:new Date().toISOString()};
+}
+load=async function(){apply(genDemo(),true)};
+$("lock").classList.add("off");document.querySelector(".wrap").style.visibility="";load(true);
+
+</script>
+</body></html>
